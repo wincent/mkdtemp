@@ -40,7 +40,7 @@ static VALUE walrus_dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
     char *path  = mkdtemp(RSTRING(safe)->ptr);
     if (path == NULL)
         rb_raise(rb_eSystemCallError, "mkdtemp failed (error: %d)", errno);
-    return rb_str_new2(path);
+    return safe;
 }
 
 void Init_mkdtemp()
