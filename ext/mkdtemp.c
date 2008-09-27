@@ -28,7 +28,7 @@ an optional String parameter as a template describing the desired form of the di
 if no template is supplied then "/tmp/temp.XXXXXX" is used as a default.
 
 */
-static VALUE walrus_dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
+static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
 {
     VALUE template;
     char *path;
@@ -46,5 +46,5 @@ static VALUE walrus_dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
 
 void Init_mkdtemp()
 {
-    rb_define_module_function(rb_cDir, "mkdtemp", walrus_dir_mkdtemp_m, -1);
+    rb_define_module_function(rb_cDir, "mkdtemp", dir_mkdtemp_m, -1);
 }
