@@ -27,6 +27,10 @@ This method securely creates temporary directories. It is a wrapper for the mkdt
 an optional String parameter as a template describing the desired form of the directory name and overwriting the template in-place;
 if no template is supplied then "/tmp/temp.XXXXXX" is used as a default.
 
+Note that the exact implementation of mkdtemp() may vary depending on the target system. For example, on Mac OS X at the time of
+writing, the man page states that the template may contain "some number" of "Xs" on the end of the string, whereas on Red Hat
+Enterprise Linux it states that the template suffix "must be XXXXXX".
+
 */
 static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
 {
