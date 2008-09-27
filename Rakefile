@@ -13,18 +13,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'rake'
+require 'rake/clean'
 require 'rake/gempackagetask'
 require 'rubygems'
 require 'spec/rake/spectask'
 require 'spec/rake/verify_rcov'
+require File.join(File.dirname(__FILE__), 'lib', 'mkdtemp', 'version.rb')
 
-desc 'Prepare release'
-task :release => [:changelog, :gem]
+CLEAN.include   Rake::FileList['**/*.so', '**/*.bundle', '**/*.o', '**/mkmf.log', '**/Makefile']
 
-desc 'Update changelog'
-task :changelog do |t|
-  system %{svn log svn://svn.wincent.com/Walrus/trunk > CHANGELOG.txt}
-end
+task :default => :all
+
+desc 'Build all and run all specs'
+task :all => [:make, :spec]
 
 desc 'Run specs with coverage'
 Spec::Rake::SpecTask.new('coverage') do |t|
@@ -51,46 +52,34 @@ Spec::Rake::SpecTask.new('specdoc') do |t|
   t.out         = 'specdoc.rd'
 end
 
-desc 'Build C extensions'
-task :make => [:jindex, :mkdtemp]
-
-desc 'Build jindex extension'
-task :jindex do |t|
-  system %{cd ext/jindex && ruby ./extconf.rb && make && cp jindex.#{Config::CONFIG['DLEXT']} ../ && cd -}
-end
-
-desc 'Build mkdtemp extension'
-task :mkdtemp do |t|
-  system %{cd ext/mkdtemp && ruby ./extconf.rb && make && cp mkdtemp.#{Config::CONFIG['DLEXT']} ../ && cd -}
+desc 'Build extension'
+task :make do |t|
+  system %{cd ext && ruby ./extconf.rb && make && cd -}
 end
 
 SPEC = Gem::Specification.new do |s|
-  s.name              = 'walrus'
-  s.version           = '0.2'
+  s.name              = 'mkdtemp'
+  s.version           = Dir::Mkdtemp::VERSION
   s.author            = 'Wincent Colaiuta'
   s.email             = 'win@wincent.com'
-  s.homepage          = 'http://walrus.wincent.com/'
-  s.rubyforge_project = 'walrus'
+  s.homepage          = 'http://git.wincent.com/mkdtemp.git'
+  s.rubyforge_project = 'mkdtemp'
   s.platform          = Gem::Platform::RUBY
-  s.summary           = 'Object-oriented templating system'
+  s.summary           = 'Secure creation of temporary directories'
   s.description       = <<-ENDDESC
-    Walrus is an object-oriented templating system inspired by and similar
-    to the Cheetah Python-powered template engine. It includes a Parser
-    Expression Grammar (PEG) parser generator capable of generating an
-    integrated lexer, "packrat" parser, and Abstract Syntax Tree (AST)
-    builder.
+    mkdtemp is a C extension that wraps the Standard C Library function
+    of the same name to make secure creation of temporary directories
+    easily available from within Ruby.
   ENDDESC
-  s.require_paths     = ['lib', 'ext']
+  s.require_paths     = ['ext', 'lib']
   s.has_rdoc          = true
 
   # TODO: add 'docs' subdirectory, 'README.txt' when they're done
-  s.files             = FileList['{bin,lib,spec}/**/*', 'ext/**/*.rb', 'ext/**/*.c'].to_a
-  s.extensions        = ['ext/jindex/extconf.rb', 'ext/mkdtemp/extconf.rb']
-  s.executables       = ['walrus']
-  s.add_dependency('wopen3', '>= 0.1') 
+  s.files             = FileList['{lib,spec}/**/*', 'ext/*.{c,rb}', 'ext/**/*.c'].to_a
+  s.extensions        = ['ext/extconf.rb']
 end
 
+task :package => [:clobber, :all, :gem]
 Rake::GemPackageTask.new(SPEC) do |t|
   t.need_tar      = true
 end
-
