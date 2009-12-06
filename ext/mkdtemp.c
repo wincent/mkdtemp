@@ -1,5 +1,5 @@
-/* 
-Copyright 2007-2008 Wincent Colaiuta
+/*
+Copyright 2007-2009 Wincent Colaiuta
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -42,7 +42,7 @@ static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
         template = rb_str_new2("/tmp/temp.XXXXXX");     /* fallback to this template if passed nil */
     SafeStringValue(template);                          /* raises if template is tainted and SAFE level > 0 */
     template = StringValue(template);                   /* duck typing support */
-    path = mkdtemp(RSTRING(template)->ptr);
+    path = mkdtemp(RSTRING_PTR(template));
     if (path == NULL)
         rb_raise(rb_eSystemCallError, "mkdtemp failed (error: %d)", errno);
     return template;
