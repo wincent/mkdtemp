@@ -1,4 +1,4 @@
-# Copyright 2008 Wincent Colaiuta
+# Copyright 2008-2009 Wincent Colaiuta
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -14,6 +14,6 @@
 
 class Dir
   module Mkdtemp
-    VERSION = '1.0'
+    VERSION = '1.1'
   end # module Mkdtemp
 end # class Dir
