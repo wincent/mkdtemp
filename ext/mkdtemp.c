@@ -35,16 +35,31 @@ Enterprise Linux it states that the template suffix "must be XXXXXX".
 static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
 {
     VALUE template;
+    char *c_template;
     char *path;
+
+    /* process argument */
     if (rb_scan_args(argc, argv, "01", &template) == 0) /* check for 0 mandatory arguments, 1 optional argument */
         template = Qnil;                                /* default to nil if no argument passed */
     if (NIL_P(template))
         template = rb_str_new2("/tmp/temp.XXXXXX");     /* fallback to this template if passed nil */
     SafeStringValue(template);                          /* raises if template is tainted and SAFE level > 0 */
     template = StringValue(template);                   /* duck typing support */
-    path = mkdtemp(RSTRING_PTR(template));
+
+    /* create temporary storage */
+    c_template = malloc(RSTRING_LEN(template) + 1);
+    if (!c_template)
+        rb_raise(rb_eNoMemError, "failed to allocate %d bytes of template storage", RSTRING_LEN(template) + 1);
+    strncpy(c_template, RSTRING_PTR(template), RSTRING_LEN(template));
+    c_template[RSTRING_LEN(template)] = 0;              /* NUL-terminate */
+
+    /* fill out template */
+    path = mkdtemp(c_template);
+    if (path)
+        template = rb_str_new2(path);
+    free(c_template);
     if (path == NULL)
-        rb_raise(rb_eSystemCallError, "mkdtemp failed (error: %d)", errno);
+        rb_raise(rb_eSystemCallError, "mkdtemp failed (error #%d: %s)", errno, strerror(errno));
     return template;
 }
 
