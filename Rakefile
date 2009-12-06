@@ -89,7 +89,7 @@ SPEC = Gem::Specification.new do |s|
   s.has_rdoc          = true
 
   # TODO: add 'docs' subdirectory, 'README.txt' when they're done
-  s.files             = FileList['{lib,spec}/**/*', 'ext/*.{c,rb}', 'ext/**/*.c'].to_a
+  s.files             = FileList['{lib,spec}/**/*', 'ext/*.{c,h,rb}', 'ext/depend'].to_a
   s.extensions        = ['ext/extconf.rb']
 end
 
