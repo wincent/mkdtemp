@@ -49,7 +49,7 @@ static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
     /* create temporary storage */
     c_template = malloc(RSTRING_LEN(template) + 1);
     if (!c_template)
-        rb_raise(rb_eNoMemError, "failed to allocate %d bytes of template storage", RSTRING_LEN(template) + 1);
+        rb_raise(rb_eNoMemError, "failed to allocate %ld bytes of template storage", RSTRING_LEN(template) + 1);
     strncpy(c_template, RSTRING_PTR(template), RSTRING_LEN(template));
     c_template[RSTRING_LEN(template)] = 0;              /* NUL-terminate */
 
