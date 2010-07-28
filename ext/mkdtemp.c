@@ -99,5 +99,5 @@ static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
 
 void Init_mkdtemp()
 {
-    rb_define_module_function(rb_cDir, "mkdtemp", dir_mkdtemp_m, -1);
+    rb_define_singleton_method(rb_cDir, "mkdtemp", dir_mkdtemp_m, -1);
 }
