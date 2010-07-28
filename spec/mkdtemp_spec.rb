@@ -84,4 +84,33 @@ describe 'Dir.mkdtemp' do
     path = Dir.mkdtemp '/tmp/test.XXXXXX'
     path.should match(%r{\A/tmp/test\..{6}\z})
   end
+
+  context 'with optional block parameter' do
+    it 'performs a Dir.chdir into the created directory' do
+      cd_path = nil
+      path = Dir.mkdtemp do
+        cd_path = Dir.pwd
+      end
+      Pathname.new(path).realpath.should == Pathname.new(cd_path).realpath
+    end
+
+    it 'lets exceptions bubble up to calling context' do
+      expect do
+        Dir.mkdtemp do
+          raise 'bubble'
+        end
+      end.to raise_error(/bubble/)
+    end
+
+    it 'preserves current directory even when an exception occurs' do
+      path = Dir.pwd
+      begin
+        Dir.mkdtemp do
+          raise 'error'
+        end
+      rescue
+      end
+      Dir.pwd.should == path
+    end
+  end
 end

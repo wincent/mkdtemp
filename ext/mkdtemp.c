@@ -26,6 +26,19 @@
 #include <unistd.h>
 #include "ruby_compat.h"
 
+// helper function needed by rb_iterate; see:
+//  http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/144100
+VALUE call_chdir(VALUE dir)
+{
+    return rb_funcall(rb_cDir, rb_intern("chdir"), 1, dir);
+}
+
+// helper function needed by rb_iterate
+VALUE yield_block(VALUE ignored, VALUE block)
+{
+    return rb_funcall(block, rb_intern("call"), 0);
+}
+
 // call-seq:
 //     Dir.mkdtemp([string])   -> String or nil
 //
@@ -35,6 +48,15 @@
 // and overwriting the template in-place; if no template is supplied then
 // "/tmp/temp.XXXXXX" is used as a default.
 //
+// If supplied a block, performs a Dir.chdir into the created directory and
+// yields to the block:
+//
+//      # this:            # is a shorthand for:
+//      Dir.mkdtemp do     #   dir = Dir.mkdtemp
+//        puts Dir.pwd     #   Dir.chdir dir do
+//      end                #     puts Dir.pwd
+//                         #   end
+//
 // Note that the exact implementation of mkdtemp() may vary depending on the
 // target system. For example, on Mac OS X at the time of writing, the man page
 // states that the template may contain "some number" of "Xs" on the end of the
@@ -42,17 +64,17 @@
 // suffix "must be XXXXXX".
 static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
 {
-    VALUE template;
+    VALUE template, block;
     char *c_template;
     char *path;
 
     // process arguments
-    if (rb_scan_args(argc, argv, "01", &template) == 0) // check for 0 mandatory arguments, 1 optional argument
-        template = Qnil;                                // default to nil if no argument passed
+    if (rb_scan_args(argc, argv, "01&", &template, &block) == 0)    // 0 mandatory, 1 optional, 1 block
+        template = Qnil;                                            // default to nil if no argument passed
     if (NIL_P(template))
-        template = rb_str_new2("/tmp/temp.XXXXXX");     // fallback to this template if passed nil
-    SafeStringValue(template);                          // raises if template is tainted and SAFE level > 0
-    template = StringValue(template);                   // duck typing support
+        template = rb_str_new2("/tmp/temp.XXXXXX");                 // fallback to this template if passed nil
+    SafeStringValue(template);                                      // raises if template is tainted and SAFE level > 0
+    template = StringValue(template);                               // duck typing support
 
     // create temporary storage
     c_template = malloc(RSTRING_LEN(template) + 1);
@@ -68,6 +90,10 @@ static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
     free(c_template);
     if (path == NULL)
         rb_raise(rb_eSystemCallError, "mkdtemp failed (error #%d: %s)", errno, strerror(errno));
+
+    // yield to block if given, inside Dir.chdir
+    if (rb_block_given_p() == Qtrue)
+        rb_iterate(call_chdir, template, yield_block, block);
     return template;
 }
 
