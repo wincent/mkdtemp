@@ -39,8 +39,11 @@ VALUE yield_block(VALUE ignored, VALUE block)
     return rb_funcall(block, rb_intern("call"), 0);
 }
 
+// Document-method: mkdtemp
+//
 // call-seq:
-//     Dir.mkdtemp([string])   -> String or nil
+//     Dir.mkdtemp([string]) -> String or nil
+//     Dir.mkdtemp([string]) { ... } -> String or nil
 //
 // This method securely creates temporary directories. It is a wrapper for the
 // mkdtemp() function in the standard C library. It takes an optional String
@@ -99,5 +102,9 @@ static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
 
 void Init_mkdtemp()
 {
+#if 0
+    // for Yardoc, need to fake this here
+    VALUE rb_cDir = rb_define_class("Dir", rb_cObject);
+#endif
     rb_define_singleton_method(rb_cDir, "mkdtemp", dir_mkdtemp_m, -1);
 }
