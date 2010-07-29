@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mkdtemp (1.2)
+    mkdtemp (1.2.0.99)
 
 GEM
   remote: http://rubygems.org/
@@ -15,6 +15,7 @@ GEM
     rspec-expectations (2.0.0.beta.19)
       diff-lcs (>= 1.1.2)
     rspec-mocks (2.0.0.beta.19)
+    yard (0.5.8)
 
 PLATFORMS
   ruby
@@ -22,3 +23,4 @@ PLATFORMS
 DEPENDENCIES
   mkdtemp!
   rspec (>= 2.0.0.beta)
+  yard
