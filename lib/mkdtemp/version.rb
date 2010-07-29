@@ -23,6 +23,6 @@
 
 class Dir
   module Mkdtemp
-    VERSION = '1.1.1.99'
+    VERSION = '1.2'
   end # module Mkdtemp
 end # class Dir
