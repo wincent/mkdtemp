@@ -23,8 +23,6 @@
 
 require 'rake'
 require 'rake/clean'
-require 'rake/gempackagetask'
-require 'rake/rdoctask'
 require 'rubygems'
 require 'spec/rake/spectask'
 require 'spec/rake/verify_rcov'
@@ -75,16 +73,18 @@ task :make => ['ext/mkdtemp.c', 'ext/ruby_compat.h', 'ext/Makefile'] do |t|
   end
 end
 
-Rake::RDocTask.new do |t|
-  t.rdoc_files.include 'doc/README', 'ext/mkdtemp.c'
-  t.options           << '--charset' << 'UTF-8' << '--inline-source'
-  t.main              = 'doc/README'
-  t.title             = 'mkdtemp documentation'
+desc 'Buils the YARD HTML files'
+task :yard do
+  sh 'yardoc -o html --title mkdtemp - doc/README'
 end
 
-desc 'Upload RDoc to RubyForge website'
-task :upload_rdoc => :rdoc do
-  sh 'scp -r html/* rubyforge.org:/var/www/gforge-projects/mkdtemp/'
+desc 'Upload YARD HTML'
+task :upload_yard => :yard do
+  require 'yaml'
+  config = YAML.load_file('.config.yml')
+  raise ':yardoc_host not configured' unless config.has_key?(:yardoc_host)
+  raise ':yardoc_path not configured' unless config.has_key?(:yardoc_path)
+  sh "scp -r html/* #{config[:yardoc_host]}:#{config[:yardoc_path]}"
 end
 
 EXT_FILE = "ext/mkdtemp.#{Config::CONFIG['DLEXT']}"
