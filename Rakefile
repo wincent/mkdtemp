@@ -79,7 +79,6 @@ task :upload_rdoc => :rdoc do
   sh 'scp -r html/* rubyforge.org:/var/www/gforge-projects/mkdtemp/'
 end
 
-
 SPEC = Gem::Specification.new do |s|
   s.name              = 'mkdtemp'
   s.version           = Dir::Mkdtemp::VERSION
@@ -95,7 +94,7 @@ SPEC = Gem::Specification.new do |s|
     easily available from within Ruby.
   ENDDESC
   s.require_paths     = ['ext', 'lib']
-  s.has_rdoc          = true
+  s.has_rdoc          = false
 
   # TODO: add 'docs' subdirectory, 'README.txt' when they're done
   s.files             = FileList['{lib,spec}/**/*', 'ext/*.{c,h,rb}', 'ext/depend'].to_a
