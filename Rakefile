@@ -62,10 +62,15 @@ Spec::Rake::SpecTask.new('specdoc') do |t|
   t.out         = 'specdoc.rd'
 end
 
-desc 'Build extension'
-task :make do |t|
+file 'ext/Makefile' => ['ext/depend', 'ext/extconf.rb'] do
   Dir.chdir 'ext' do
     ruby './extconf.rb'
+  end
+end
+
+desc 'Build extension'
+task :make => ['ext/mkdtemp.c', 'ext/ruby_compat.h', 'ext/Makefile'] do |t|
+  Dir.chdir 'ext' do
     system 'make'
   end
 end
@@ -82,12 +87,30 @@ task :upload_rdoc => :rdoc do
   sh 'scp -r html/* rubyforge.org:/var/www/gforge-projects/mkdtemp/'
 end
 
-desc 'Build gem ("gem build")'
-task :build => :make do
+EXT_FILE = "ext/mkdtemp.#{Config::CONFIG['DLEXT']}"
+
+file EXT_FILE => :make
+
+GEM_FILE_DEPENDENCIES = [
+  EXT_FILE, # not actually included in gem, but we want to be sure it builds
+  'ext/depend',
+  'ext/extconf.rb',
+  'ext/mkdtemp.c',
+  'ext/ruby_compat.h',
+  'lib/mkdtemp/version.rb',
+  'mkdtemp.gemspec'
+]
+
+GEM_FILE = "mkdtemp-#{Dir::Mkdtemp::VERSION}.gem"
+
+file GEM_FILE => GEM_FILE_DEPENDENCIES do
   system 'gem build mkdtemp.gemspec'
 end
 
+desc 'Build gem ("gem build")'
+task :build => GEM_FILE
+
 desc 'Publish gem ("gem push")'
-task :push => "mkdtemp-#{Dir::Mkdtemp::VERSION}.gem" do
-  system "gem push mkdtemp-#{Dir::Mkdtemp::VERSION}.gem"
+task :push => :build do
+  system "gem push #{GEM_FILE}"
 end
