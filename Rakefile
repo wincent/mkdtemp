@@ -88,6 +88,6 @@ task :build => :make do
 end
 
 desc 'Publish gem ("gem push")'
-task :push => :build do
-  system "gem push #{mkdtemp::VERSION}.gem"
+task :push => "mkdtemp-#{Dir::Mkdtemp::VERSION}.gem" do
+  system "gem push mkdtemp-#{Dir::Mkdtemp::VERSION}.gem"
 end
