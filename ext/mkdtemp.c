@@ -38,33 +38,33 @@ VALUE yield_block(VALUE ignored, VALUE block)
 {
     return rb_funcall(block, rb_intern("call"), 0);
 }
-
-// Document-method: mkdtemp
-//
-// call-seq:
-//     Dir.mkdtemp([string]) -> String or nil
-//     Dir.mkdtemp([string]) { ... } -> String or nil
-//
-// This method securely creates temporary directories. It is a wrapper for the
-// mkdtemp() function in the standard C library. It takes an optional String
-// parameter as a template describing the desired form of the directory name
-// and overwriting the template in-place; if no template is supplied then
-// "/tmp/temp.XXXXXX" is used as a default.
-//
-// If supplied a block, performs a Dir.chdir into the created directory and
-// yields to the block:
-//
-//      # this:            # is a shorthand for:
-//      Dir.mkdtemp do     #   dir = Dir.mkdtemp
-//        puts Dir.pwd     #   Dir.chdir dir do
-//      end                #     puts Dir.pwd
-//                         #   end
-//
-// Note that the exact implementation of mkdtemp() may vary depending on the
-// target system. For example, on Mac OS X at the time of writing, the man page
-// states that the template may contain "some number" of "Xs" on the end of the
-// string, whereas on Red Hat Enterprise Linux it states that the template
-// suffix "must be XXXXXX".
+/*
+ * Document-method: mkdtemp
+ * call-seq:
+ *     Dir.mkdtemp([string]) -> string
+ *     Dir.mkdtemp([string]) { ... } -> string
+ *
+ * This method securely creates temporary directories. It is a wrapper for the
+ * mkdtemp() function in the standard C library. It takes an optional String
+ * parameter as a template describing the desired form of the directory name
+ * and overwriting the template in-place; if no template is supplied then
+ * "/tmp/temp.XXXXXX" is used as a default.
+ *
+ * If supplied a block, performs a Dir.chdir into the created directory and
+ * yields to the block:
+ *
+ *      # this:            # is a shorthand for:
+ *      Dir.mkdtemp do     #   dir = Dir.mkdtemp
+ *        puts Dir.pwd     #   Dir.chdir dir do
+ *      end                #     puts Dir.pwd
+ *                         #   end
+ *
+ * Note that the exact implementation of mkdtemp() may vary depending on the
+ * target system. For example, on Mac OS X at the time of writing, the man page
+ * states that the template may contain "some number" of "Xs" on the end of the
+ * string, whereas on Red Hat Enterprise Linux it states that the template
+ * suffix "must be XXXXXX".
+ */
 static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
 {
     VALUE template, block;
@@ -103,7 +103,7 @@ static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
 void Init_mkdtemp()
 {
 #if 0
-    // for Yardoc, need to fake this here
+    // for YARD, need to fake this here
     VALUE rb_cDir = rb_define_class("Dir", rb_cObject);
 #endif
     rb_define_singleton_method(rb_cDir, "mkdtemp", dir_mkdtemp_m, -1);
