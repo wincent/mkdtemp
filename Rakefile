@@ -28,7 +28,7 @@ require 'rake/rdoctask'
 require 'rubygems'
 require 'spec/rake/spectask'
 require 'spec/rake/verify_rcov'
-require File.join(File.dirname(__FILE__), 'lib', 'mkdtemp', 'version.rb')
+require File.expand_path('lib/mkdtemp/version.rb', File.dirname(__FILE__))
 
 CLEAN.include   Rake::FileList['**/*.so', '**/*.bundle', '**/*.o', '**/mkmf.log', '**/Makefile']
 
@@ -64,7 +64,10 @@ end
 
 desc 'Build extension'
 task :make do |t|
-  system %{cd ext && ruby ./extconf.rb && make && cd -}
+  Dir.chdir 'ext' do
+    ruby './extconf.rb'
+    system 'make'
+  end
 end
 
 Rake::RDocTask.new do |t|
@@ -79,29 +82,12 @@ task :upload_rdoc => :rdoc do
   sh 'scp -r html/* rubyforge.org:/var/www/gforge-projects/mkdtemp/'
 end
 
-SPEC = Gem::Specification.new do |s|
-  s.name              = 'mkdtemp'
-  s.version           = Dir::Mkdtemp::VERSION
-  s.author            = 'Wincent Colaiuta'
-  s.email             = 'win@wincent.com'
-  s.homepage          = 'https://wincent.com/products/mkdtemp'
-  s.rubyforge_project = 'mkdtemp'
-  s.platform          = Gem::Platform::RUBY
-  s.summary           = 'Secure creation of temporary directories'
-  s.description       = <<-ENDDESC
-    mkdtemp is a C extension that wraps the Standard C Library function
-    of the same name to make secure creation of temporary directories
-    easily available from within Ruby.
-  ENDDESC
-  s.require_paths     = ['ext', 'lib']
-  s.has_rdoc          = false
-
-  # TODO: add 'docs' subdirectory, 'README.txt' when they're done
-  s.files             = FileList['{lib,spec}/**/*', 'ext/*.{c,h,rb}', 'ext/depend'].to_a
-  s.extensions        = ['ext/extconf.rb']
+desc 'Build gem ("gem build")'
+task :build => :make do
+  system 'gem build mkdtemp.gemspec'
 end
 
-task :package => [:clobber, :all, :gem]
-Rake::GemPackageTask.new(SPEC) do |t|
-  t.need_tar      = true
+desc 'Publish gem ("gem push")'
+task :push => :build do
+  system "gem push #{mkdtemp::VERSION}.gem"
 end
