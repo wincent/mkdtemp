@@ -39,35 +39,41 @@ VALUE yield_block(VALUE ignored, VALUE block)
     return rb_funcall(block, rb_intern("call"), 0);
 }
 /*
- * Document-method: mkdtemp
- * call-seq:
- *     Dir.mkdtemp([string]) -> string
- *     Dir.mkdtemp([string]) { ... } -> string
+ * @overload mkdtemp(template)
+ *   Securely create a temporary directory.
  *
- * This method securely creates temporary directories. It is a wrapper for the
- * <code>mkdtemp()</code> function in the standard C library. It takes an
- * optional String parameter as a template describing the desired form of the
- * directory name and overwriting the template in-place; if no template is
- * supplied then "/tmp/temp.XXXXXX" is used as a default.
+ *   This method securely creates temporary directories. It is a wrapper for the
+ *   <code>mkdtemp()</code> function in the standard C library.
  *
- * If supplied a block, performs a <code>Dir.chdir</code> into the created
- * directory and yields to the block:
+ *   If supplied a block, performs a <code>Dir.chdir</code> into the created
+ *   directory and yields to the block:
  *
+ *   @example
  *      # this:            # is a shorthand for:
  *      Dir.mkdtemp do     #   dir = Dir.mkdtemp
  *        puts Dir.pwd     #   Dir.chdir dir do
  *      end                #     puts Dir.pwd
  *                         #   end
  *
- * Note that the exact implementation of <code>mkdtemp()</code> may vary
- * depending on the target system. For example, on Mac OS X at the time of
- * writing, the man page states that the template may contain "some number" of
- * "Xs" on the end of the string, whereas on Red Hat Enterprise Linux it states
- * that the template suffix "must be XXXXXX".
+ *   @yield an optional block to perform operations inside the created directory.
+ *   @param [String, nil] template a template describing the desired form of the
+ *      directory name. If no template is supplied then "/tmp/temp.XXXXXX" is used
+ *      as a default.
+ *   @return [String] the path to the created directory
+ *   @raise [TypeError] if <code>template</code> is not a String or cannot be
+ *      converted into one
+ *   @raise [SecurityError] if <code>template</code> is tainted and
+ *      <code>$SAFE</code> is > 0
+ *   @raise [NoMemoryError] if temporary storage for the template could not be
+ *      allocated
+ *   @raise [SystemCallError] if the call to <code>mkdtemp()</code> fails
  *
- * @param [String] optional template string
- * @return [String, nil] the filled-in template string, or nil in the event of
- *   an error
+ * @note
+ *   Note that the exact implementation of <code>mkdtemp()</code> may vary
+ *   depending on the target system. For example, on Mac OS X at the time of
+ *   writing, the man page states that the template may contain "some number" of
+ *   "Xs" on the end of the string, whereas on Red Hat Enterprise Linux it states
+ *   that the template suffix "must be XXXXXX".
  */
 static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
 {
