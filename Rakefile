@@ -73,7 +73,7 @@ task :make => ['ext/mkdtemp.c', 'ext/ruby_compat.h', 'ext/Makefile'] do |t|
   end
 end
 
-desc 'Buils the YARD HTML files'
+desc 'Build the YARD HTML files'
 task :yard do
   sh 'yardoc -o html --title mkdtemp - doc/README'
 end
