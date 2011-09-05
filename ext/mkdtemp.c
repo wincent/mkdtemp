@@ -106,7 +106,7 @@ static VALUE dir_mkdtemp_m(int argc, VALUE *argv, VALUE self)
         rb_raise(rb_eSystemCallError, "mkdtemp failed (error #%d: %s)", errno, strerror(errno));
 
     // yield to block if given, inside Dir.chdir
-    if (rb_block_given_p() == Qtrue)
+    if (rb_block_given_p())
         rb_iterate(call_chdir, template, yield_block, block);
     return template;
 }
