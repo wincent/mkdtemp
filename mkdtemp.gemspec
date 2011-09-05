@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.extensions        = ['ext/extconf.rb']
 
   s.add_development_dependency 'rake'
+  s.add_development_dependency 'rcov'
   s.add_development_dependency 'rspec', '~> 2.0'
   s.add_development_dependency 'yard'
 end
