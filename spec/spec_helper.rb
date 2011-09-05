@@ -1,4 +1,4 @@
-# Copyright 2008-2010 Wincent Colaiuta. All rights reserved.
+# Copyright 2008-2011 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -22,6 +22,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'pathname'
-require 'rubygems'
-require 'spec'
+require 'rspec'
+
 require File.join(File.dirname(__FILE__), '..', 'ext', 'mkdtemp')

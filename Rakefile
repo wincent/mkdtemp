@@ -1,4 +1,4 @@
-# Copyright 2007-2010 Wincent Colaiuta. All rights reserved.
+# Copyright 2007-2011 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,41 +24,23 @@
 require 'rake'
 require 'rake/clean'
 require 'rubygems'
-require 'spec/rake/spectask'
-require 'spec/rake/verify_rcov'
+require 'rspec/core/rake_task'
 require File.expand_path('lib/mkdtemp/version.rb', File.dirname(__FILE__))
 
 CLEAN.include   Rake::FileList['**/*.so', '**/*.bundle', '**/*.o', '**/mkmf.log', '**/Makefile']
-
 task :default => :all
 
 desc 'Build all and run all specs'
 task :all => [:make, :spec]
 
 desc 'Run specs with coverage'
-Spec::Rake::SpecTask.new('coverage') do |t|
-  t.spec_files  = FileList['spec/**/*_spec.rb']
+RSpec::Core::RakeTask.new('coverage') do |t|
   t.rcov        = true
   t.rcov_opts = ['--exclude', "spec"]
 end
 
 desc 'Run specs'
-Spec::Rake::SpecTask.new('spec') do |t|
-  t.spec_files  = FileList['spec/**/*_spec.rb']
-end
-
-desc 'Verify that test coverage is above minimum threshold'
-RCov::VerifyTask.new(:verify => :spec) do |t|
-  t.threshold   = 99.2 # never adjust expected coverage down, only up
-  t.index_html  = 'coverage/index.html'
-end
-
-desc 'Generate specdocs for inclusions in RDoc'
-Spec::Rake::SpecTask.new('specdoc') do |t|
-  t.spec_files  = FileList['spec/**/*_spec.rb']
-  t.spec_opts   = ['--format', 'rdoc']
-  t.out         = 'specdoc.rd'
-end
+RSpec::Core::RakeTask.new('spec')
 
 file 'ext/Makefile' => ['ext/depend', 'ext/extconf.rb'] do
   Dir.chdir 'ext' do
